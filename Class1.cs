@@ -83,10 +83,11 @@ namespace DCviewer
                         body = body.Substring(13, body.Length - 14);
                         JArray jsons = JArray.Parse(body);
                         oView.addData(jsons);
+                        oView.Refresh();
                         //foreach (var ajson in jsons)
                         //{                            
                         //    oView.addData(ajson.ToString());
-                        // test222
+                        // test222333
                         //}                        
                     }
                 }
