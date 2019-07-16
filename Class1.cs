@@ -19,7 +19,8 @@ namespace DCviewer
     {
         string sUserAgent = "";
         ViewPanel oView;
-        
+        public showErrorForm showErrorForm = new showErrorForm();
+
 
         //TabPage oPage = null;
 
@@ -61,34 +62,47 @@ namespace DCviewer
         {
             oSession.oRequest["User-Agent"] = sUserAgent;
 
-            
-            
                          
         }
+
         public void AutoTamperRequestAfter(Session oSession)
         {
             oView.Invoke(new EventHandler(delegate
             {
+                JArray jsons = new JArray();
                 string url = oSession.fullUrl;
                 if (url.Contains("log.dc.cn"))
                 {
                     string body = oSession.GetRequestBodyAsString();
-                    body = HttpUtility.UrlDecode(body);
-                    body = Lis2013HISWSTest.ZipHelper.GZipDecompressString(body);
-                    body = body.Trim();
+                    try
+                    {
+                        body = HttpUtility.UrlDecode(body);
+                        body = Lis2013HISWSTest.ZipHelper.GZipDecompressString(body);
+                        body = body.Trim();
+                    }
+                    catch
+                    {
+                        showErrorForm.setErrorTextToRich("body解码 报错：\n");
+                        showErrorForm.Show();
+                        showErrorForm.TopMost = true;
+                    }
 
                     if (body.Length > 10)
-                    {                        
-                        body = HttpUtility.UrlDecode(body);
-                        body = body.Substring(13, body.Length - 14);
-                        JArray jsons = JArray.Parse(body);
-                        oView.addData(jsons);
-                        oView.Refresh();
-                        //foreach (var ajson in jsons)
-                        //{                            
-                        //    oView.addData(ajson.ToString());
-                        // test222333
-                        //}                        
+                    {
+                        try
+                        {
+                            body = HttpUtility.UrlDecode(body);
+                            body = body.Substring(13, body.Length - 14);
+                            jsons = JArray.Parse(body);
+                        }
+                        catch
+                        {
+                            showErrorForm.setErrorTextToRich("body转JArray 报错：\n" + body);
+                            showErrorForm.Show();
+                            showErrorForm.TopMost = true;
+                        }
+                        
+                        oView.addData(jsons);                                        
                     }
                 }
             }));

@@ -11,121 +11,163 @@ namespace DCviewer
 {
     public partial class ViewPanel : UserControl
     {
-        private int preListBox1SelectedIndex = -2;
+        private int preListBox1SelectedIndex = 0;
+        private int preGridRowNum = 0;   //辅助判断gridselected是手动还是自动切到新行的
+        private bool isGridBottom = true;   //是否将表格显示在底部
+        private bool isGridSelectedIndexCanBeUpdated = true;
+        private ArrayList defaultColumns = new ArrayList{ "all", "_ac_type", "sub_category", "category"};
+        private ArrayList customColumns = new ArrayList();
+        
         public ViewPanel()
         {
+            
             InitializeComponent();
-       }
-
-        private void TextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ListView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
+            initDataGridView();
+           
         }
 
 
-        private void SplitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
+        private void initDataGridView()
         {
+            dataGridView1.Columns.Clear();
+            dataGridView1.Rows.Clear();
+            dataGridView1.ClearSelection();
+            customColumns.Clear();
 
+            foreach (var column in defaultColumns)
+            {
+                addGridColumn(column.ToString());
+            }
         }
 
-        private void RichTextBox1_TextChanged(object sender, EventArgs e)
+        private void addGridColumn(string columnName)
         {
-
+            DataGridViewTextBoxColumn columnToInsert = new DataGridViewTextBoxColumn();
+            columnToInsert.Name = columnName;
+            columnToInsert.HeaderText = columnName;
+            columnToInsert.SortMode = DataGridViewColumnSortMode.NotSortable;
+            dataGridView1.Columns.Insert(0, columnToInsert);
         }
 
         private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
            
-            if (listBox1.SelectedIndex < 0)
-                return;
-            if (listBox1.SelectedIndex == preListBox1SelectedIndex)
-            {
-                listBox1.ClearSelected();
-                preListBox1SelectedIndex = -2;
-            }
-            else
-            {
-                preListBox1SelectedIndex = listBox1.SelectedIndex;
-                setRichText();
-            }
-            
-
+            //if (listBox1.SelectedIndex < 0)
+            //    return;
+            //if (listBox1.SelectedIndex == preListBox1SelectedIndex)
+            //{
+            //    listBox1.ClearSelected();
+            //    preListBox1SelectedIndex = -2;
+            //}
+            //else
+            //{
+            //    preListBox1SelectedIndex = listBox1.SelectedIndex;
+            //    setRichText("listBox");
+            //}            
         }
 
-        private void TextBox1_Enter(object sender, EventArgs e)
-        {
-            
-        }
 
         private void TextBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             //获取过滤关键字                 
             if (e.KeyChar == (char)Keys.Enter)
             {
-                
-                filters.Clear();
-                foreach (var one in new ArrayList(textBox1.Text.Trim().Split(' ')))
-                    if (one.ToString() != "")
-                    {
-                        filters.Add(one);
-                    }
-            
-                //重新过滤
-                listBox1.Items.Clear();
-                if (allData.Count != 0)
-                {
-                    listBox1.BeginUpdate();
-                    foreach (string aData in allData)
-                    {
-                        if (doFilter(aData))
-                        {                             
-                            addListBoxItem(aData);
-                        }
-                    }
-                    listBox1.EndUpdate();
-                }                
-                setRichText();
-            }
+                reFilter();
+
+                //作废listbox
+                //listBox1.Items.Clear();
+                //if (allData.Count != 0)
+                //{
+                //    listBox1.BeginUpdate();
+                //    foreach (string aData in allData)
+                //    {
+                //        if (doFilter(aData))
+                //        {                             
+                //            addListBoxItem(aData);
+                //        }
+                //    }
+                //    listBox1.EndUpdate();
+                //}                
+                //setRichText();                
+
+            }         
         }
 
-       
-        private void TextBox2_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            //获取高亮关键字
-            
-            if (e.KeyChar == (char)Keys.Enter)
-            {
-                highLights.Clear();
-                foreach (var one in new ArrayList(textBox2.Text.Trim().Split(' ')))
-                    if (one.ToString() != "")
-                    {
-                        highLights.Add(one);
-                    }
-                //刷新显示
-                setRichText();
-            }
-            
-        }
 
         private void TextBox1_Leave(object sender, EventArgs e)
         {
-            //TextBox1_KeyPress(sender, new KeyPressEventArgs((char)Keys.Enter));
+            reFilter();
         }
 
-        private void ListBox1_KeyPress(object sender, KeyPressEventArgs e)
+
+        private void TextBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
-       
+            //获取高亮关键字            
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                reHighlights();
+            }            
         }
+
+
+        private void TextBox2_Leave(object sender, EventArgs e)
+        {
+            reHighlights();
+        }
+
+
+        private void reFilter()
+        {
+            string newFiltersEditText = textBox1.Text.Trim();
+
+            //如果新的过滤字段内容一样，则不作后续处理
+            //if (String.Compare(newFiltersEditText, preFiltersEditText) == 0)
+            if (newFiltersEditText == preFiltersEditText)
+            {
+                return;
+            }            
+
+            preFiltersEditText = newFiltersEditText;
+            filters.Clear();
+            customColumns.Clear();
+            foreach (var one in new ArrayList(textBox1.Text.Trim().Split(' ')))
+                if (one.ToString() != "")
+                {
+                    filters.Add(one);
+                }     
+
+            //重新过滤
+            if (allData.Count != 0)
+            {
+                allFilterData.Clear();
+                foreach (string aData in allData)
+                {
+                    if (doFilter(aData))
+                    {
+                        allFilterData.Add(aData);
+                    }
+                }
+            }
+            isGridBottom = true;
+            preListBox1SelectedIndex = 0;
+            preGridRowNum = allFilterData.Count;
+            setGridView();
+            isGridBottom = true;    //过滤显示完成后需要再次初始化isGridBottom
+        }
+
+
+        private void reHighlights()
+        {
+            highLights.Clear();
+            foreach (var one in new ArrayList(textBox2.Text.Trim().Split(' ')))
+                if (one.ToString() != "")
+                {
+                    highLights.Add(one);
+                }
+            //刷新显示
+            setRichText();
+        }
+        
 
         private void ListBox1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -137,19 +179,81 @@ namespace DCviewer
             }
         }
 
-        private void SplitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
-        {
-            
-        }
-
-        private void ListBox1_MouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
 
         private void ZipHelperBindingSource_CurrentChanged(object sender, EventArgs e)
         {
 
         }
+
+        private void DataGridView1_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)
+        {
+            //添加行号，要记得打开RowHeadersVisible为true
+            //e.Row.HeaderCell.Value = string.Format("{0}", e.Row.Index + 1);
+        }
+
+        private void DataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            
+            int id = -1;
+            if (isGridBottom && dataGridView1.Rows.Count == 1)
+            {
+                //MessageBox.Show("make sure return\n"+ isGridBottom.ToString()+"\n"+dataGridView1.Rows.Count.ToString());
+                return;
+            }
+
+            //int id = dataGridView1.CurrentRow.Index;      表格的选中行的取法，各种难以捉摸
+            //int id = e.Row.Index;                         表格的选中行的取法，各种难以捉摸
+            if (dataGridView1.SelectedRows.Count > 0)
+            {
+                id = dataGridView1.SelectedRows[0].Index;
+            }
+
+            //MessageBox.Show("in SelectionChanged\n" +
+            //    "id: " + id +
+            //    "\npreListBox1SelectedIndex: " + preListBox1SelectedIndex.ToString() +
+            //    "\nisGridBottom: " + isGridBottom.ToString() +
+            //    "\npreGridRowNum: " + preGridRowNum.ToString());
+            if (isGridSelectedIndexCanBeUpdated)
+            {
+                if (!(id == 99 && id == preGridRowNum)) //非(100条且置底)
+                {
+                    if (id > preGridRowNum) //如果自动选中的是新加一行，而不是手选的
+                    {
+                        preGridRowNum = id;
+                    }
+                    else
+                    {
+                        preListBox1SelectedIndex = id;
+                        isGridBottom = false;
+                    }
+                }
+              
+            }
+            setRichText();
+        }
+
+        private void DataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int id = e.RowIndex;
+            if (id == preListBox1SelectedIndex)
+            {
+                dataGridView1.ClearSelection();
+                isGridBottom = true;
+                preListBox1SelectedIndex = 0;
+            }
+        }
+
+        private void DataGridView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.X)
+            {
+                allData.Clear();
+                allFilterData.Clear();
+                initDataGridView();
+                richTextBox1.Clear();
+            }
+        }
+
+  
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 
 namespace DCviewer
@@ -16,9 +17,11 @@ namespace DCviewer
         /// </summary>
         private System.ComponentModel.IContainer components = null;
         private ArrayList allData = new ArrayList();
-        //private string[] filters = new string[10];
+        private ArrayList allFilterData = new ArrayList();
         private ArrayList filters = new ArrayList();
+        private string preFiltersEditText = "";
         private ArrayList highLights = new ArrayList();
+        public showErrorForm showErrorForm = new showErrorForm();
 
         /// <summary> 
         /// 清理所有正在使用的资源。
@@ -42,23 +45,27 @@ namespace DCviewer
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.violinBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.violinBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.zipHelperBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.violinBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.zipHelperBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // textBox1
@@ -69,7 +76,6 @@ namespace DCviewer
             this.textBox1.Size = new System.Drawing.Size(931, 24);
             this.textBox1.TabIndex = 1;
             this.textBox1.WordWrap = false;
-            this.textBox1.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox1_KeyPress);
             this.textBox1.Leave += new System.EventHandler(this.TextBox1_Leave);
             // 
@@ -78,41 +84,95 @@ namespace DCviewer
             this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer1.Location = new System.Drawing.Point(0, 319);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 71);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.listBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.dataGridView1);
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.listBox1);
             this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
-            this.splitContainer1.Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.SplitContainer1_Panel2_Paint);
-            this.splitContainer1.Size = new System.Drawing.Size(1013, 267);
+            this.splitContainer1.Size = new System.Drawing.Size(1013, 706);
             this.splitContainer1.SplitterDistance = 495;
             this.splitContainer1.TabIndex = 8;
             this.splitContainer1.TabStop = false;
-            this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.SplitContainer1_SplitterMoved);
             // 
-            // violinBindingSource
+            // dataGridView1
             // 
-            this.violinBindingSource.DataSource = typeof(DCviewer.Violin);
+            this.dataGridView1.AccessibleRole = System.Windows.Forms.AccessibleRole.Outline;
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.AllowUserToOrderColumns = true;
+            this.dataGridView1.AllowUserToResizeRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dataGridView1.BackgroundColor = System.Drawing.Color.White;
+            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.dataGridView1.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.RaisedVertical;
+            this.dataGridView1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
+            this.dataGridView1.EnableHeadersVisualStyles = false;
+            this.dataGridView1.GridColor = System.Drawing.Color.White;
+            this.dataGridView1.Location = new System.Drawing.Point(0, 3);
+            this.dataGridView1.MultiSelect = false;
+            this.dataGridView1.Name = "dataGridView1";
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
+            this.dataGridView1.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("等线", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.dataGridView1.RowTemplate.Height = 23;
+            this.dataGridView1.RowTemplate.ReadOnly = true;
+            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridView1.Size = new System.Drawing.Size(495, 700);
+            this.dataGridView1.StandardTab = true;
+            this.dataGridView1.TabIndex = 4;
+            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView1_CellDoubleClick);
+            this.dataGridView1.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridView1_RowStateChanged);
+            this.dataGridView1.SelectionChanged += new System.EventHandler(this.DataGridView1_SelectionChanged);
+            this.dataGridView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.DataGridView1_KeyDown);
             // 
             // listBox1
             // 
-            this.listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listBox1.Font = new System.Drawing.Font("等线", 12F);
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 17;
-            this.listBox1.Location = new System.Drawing.Point(0, 0);
+            this.listBox1.Location = new System.Drawing.Point(-149, 167);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(495, 267);
+            this.listBox1.Size = new System.Drawing.Size(319, 242);
             this.listBox1.TabIndex = 3;
+            this.listBox1.Visible = false;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.ListBox1_SelectedIndexChanged);
             this.listBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListBox1_KeyDown);
-            this.listBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ListBox1_KeyPress);
-            this.listBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ListBox1_MouseDown);
             // 
             // richTextBox1
             // 
@@ -124,7 +184,7 @@ namespace DCviewer
             this.richTextBox1.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(514, 267);
+            this.richTextBox1.Size = new System.Drawing.Size(514, 706);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "";
             this.richTextBox1.WordWrap = false;
@@ -137,6 +197,7 @@ namespace DCviewer
             this.textBox2.Size = new System.Drawing.Size(931, 24);
             this.textBox2.TabIndex = 2;
             this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox2_KeyPress);
+            this.textBox2.Leave += new System.EventHandler(this.TextBox2_Leave);
             // 
             // label1
             // 
@@ -158,24 +219,12 @@ namespace DCviewer
             // 
             // zipHelperBindingSource
             // 
-            this.zipHelperBindingSource.DataSource = typeof(Lis2013HISWSTest.ZipHelper);
             this.zipHelperBindingSource.CurrentChanged += new System.EventHandler(this.ZipHelperBindingSource_CurrentChanged);
-            // 
-            // dataGridView1
-            // 
-            this.dataGridView1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(19, 71);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(906, 216);
-            this.dataGridView1.TabIndex = 4;
             // 
             // ViewPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox2);
@@ -183,14 +232,14 @@ namespace DCviewer
             this.Controls.Add(this.textBox1);
             this.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.Name = "ViewPanel";
-            this.Size = new System.Drawing.Size(1013, 589);
+            this.Size = new System.Drawing.Size(1013, 780);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.violinBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.zipHelperBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -201,38 +250,40 @@ namespace DCviewer
 
         public void addData(JArray jsons)
         {
-            int maxData = 100;            
+            int maxData = 100;        
             foreach (var ajson in jsons)
             {
                 string aJsonString = ajson.ToString();         
                 //超上限的处理
-                if (allData.Count == maxData)
+                if (allData.Count >= maxData)
                 {
                     if (doFilter(allData[0].ToString()))
-                        listBox1.Items.RemoveAt(0);
+                        dataGridView1.Rows.RemoveAt(0);
+                    //    listBox1.Items.RemoveAt(0);
+
                     allData.RemoveAt(0);
                 }
                 //无论如何都添加新的
                 allData.Add(aJsonString);
+                
                 if (doFilter(aJsonString))
                 {
-                    addListBoxItem(aJsonString);
-                    setRichText();
+                    if (allFilterData.Count >= maxData)
+                    {
+                        allFilterData.RemoveAt(0);
+                    }
+                    allFilterData.Add(aJsonString);
+                    addOneToGridView(aJsonString);
+                    //addListBoxItem(aJsonString);                    
                 }
             }
-            //DataGridViewTextBoxColumn acCode = new DataGridViewTextBoxColumn();
-            //acCode.Name = "_ac_type";
-            //acCode.DataPropertyName = "_ac_type";
-            //acCode.HeaderText = "_ac_type";
-            //dataGridView1.Columns.Add(acCode);
-            //int index = dataGridView1.Rows.Add();
-            //dataGridView1.Rows[index].Cells[0].Value = "123";
-            //dataGridView1.Rows[index].Cells[1].Value = "测试数据";
+            if (isGridBottom)
+                setRichText();    
         }
 
+        //显示
         private bool doFilter(string aJsonString)
-        {
-            //MessageBox.Show("in doFilter\n" + filters.Count.ToString());
+        {            
             if (filters.Count == 0)
                 return true;
             foreach(var eachFilter in filters)
@@ -243,92 +294,295 @@ namespace DCviewer
             return false;
         }
 
+        private bool doHighlight(string aJsonString)
+        {
+            if (highLights.Count == 0)
+                return false;
+            foreach (var eachHighLight in highLights)
+            {
+                if (aJsonString.Contains(eachHighLight.ToString()))
+                    return true;
+            }
+            return false;
+        }
+
         public void addListBoxItem(string aItem)
         {
             listBox1.Items.Add(aItem);
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 2; i++)
                 listBox1.Items.Add(aItem);
             listBox1.TopIndex = listBox1.Items.Count - (int)listBox1.Height / listBox1.ItemHeight;
         }
 
-        public void setTextboxName(string aName)
+
+        public void setGridView()
         {
-            this.textBox1.Text = aName;
-        }
-
-        public void addToRichbox(string aLine)
-        {
-            this.richTextBox1.Text.Insert(-1, aLine);
-        }
-
-
-        public void addToTreeView(string aName)
-        {
-            //this.treeView1.Nodes.Add(aName);
-            //this.treeView1.Nodes[0].BackColor = Color.BurlyWood;
-
-
-        }
-
-        public void setRichText()
-        {
-            string aJsonString = "";
-            richTextBox1.Clear();
-            if (listBox1.Items.Count == 0)
+            initDataGridView();
+            if (allFilterData.Count == 0)
                 return;
-            if (listBox1.SelectedItem == null)
-                aJsonString = listBox1.Items[listBox1.Items.Count - 1].ToString();
-            else
-                aJsonString = listBox1.SelectedItem.ToString();
-
-
-            aJsonString = "[" + aJsonString + "]";  //JArray.parse只能解析数组
-            JArray ajson = JArray.Parse(aJsonString);
-
-            //JObject ajson2 = (JObject)JsonConvert.DeserializeObject(aJsonString);
-
-
-            //ArrayList aJsonBeforeSort = new ArrayList();
-            //foreach (var one in ajson)
-            //{
-            //    string ss = one.ToString();
-            //    if (ss.Contains("extractmap"))
-            //    {
-            //        ss = ss.Replace("\\", "") + "\n";
-            //        aJsonBeforeSort.Insert(0, ss);
-            //    }
-            //    else
-            //    {
-            //        aJsonBeforeSort.Add(ss + "\n");
-            //    }
-            //}
-            //foreach (string one in aJsonBeforeSort)
-            //{
-            //    richTextBox1.AppendText(one.ToString());
-            //}
-
-            foreach (var kv in ajson[0])
+            
+            isGridSelectedIndexCanBeUpdated = false;                        
+            dataGridView1.SuspendLayout();            
+            foreach (var eachItem in allFilterData)
             {
-                string kvs = kv.ToString();
-                if (kvs.Contains("extractmap"))
-                {
-                    kvs = kvs.Replace("\\\"", "\"");
-                    string extraJsonString = "[{" + kvs.Substring(16, kvs.Length - 17) + "]";
-                    JArray extraJson = JArray.Parse(extraJsonString);
+                addOneToGridView(eachItem.ToString());
+            }         
+            //固定在表格底部
+            dataGridView1.CurrentCell = dataGridView1.Rows[this.dataGridView1.Rows.Count - 1].Cells[0];
+            //preListBox1SelectedIndex = 0;
 
-                    richTextBox1.AppendText("\"extractmap\": \"{\n");
-                    foreach (var extraItem in extraJson[0])
+            dataGridView1.ResumeLayout();
+            isGridSelectedIndexCanBeUpdated = true;
+            setRichText();
+        }
+
+
+        public void addOneToGridView(string aItemString)
+        {
+            int index = dataGridView1.Rows.Add();
+            //isGridSelectedIndexCanBeUpdated = false;
+      
+            //判断是否要增加列
+            if (filters.Count > 0)
+            {
+                for (int i = filters.Count; i > 0; i--)
+                {   
+                    string aFilterString = filters[i - 1].ToString();
+                    //判断过滤关键字是否已是列头
+                    if (defaultColumns.Contains(aFilterString) || customColumns.Contains(aFilterString))
+                        continue;
+                    else
                     {
-                        richTextBox1.AppendText("    ");
-                        richTextBoxAddColorText(extraItem.ToString());
-                    }
-                    richTextBox1.AppendText("}\"\n");
-                    continue;
+                        //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
+                        string pattern = string.Format("\"{0}\": \"(.*)\"", aFilterString);        
+                        Match m = Regex.Match(aItemString, pattern);
+                        while (m.Success)
+                        {
+                            //MessageBox.Show("match Success " + aFilterString);
+                            addGridColumn(aFilterString);
+                            dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
+                            customColumns.Add(aFilterString);
+                            m = m.NextMatch();    
+                        }                        
+                    }                        
                 }
-                else
-                    richTextBoxAddColorText(kvs);
+            }
+
+            for (int i = 0; i < dataGridView1.ColumnCount; i++)
+            {
+                string headerText = dataGridView1.Columns[i].HeaderText;
+                string pattern = string.Format("\"{0}\": \"(.*)\"", headerText);
+                if (aItemString.Contains(dataGridView1.Columns[i].Name))
+                {
+                    Match m = Regex.Match(aItemString, pattern);
+                    while (m.Success)
+                    {
+                        dataGridView1.Rows[index].Cells[i].Value = m.Groups[1].ToString();
+                        m = m.NextMatch();
+                    }
+                }
+            }
+
+            //整个打点完整显示在最后一列
+            dataGridView1.Rows[index].Cells[dataGridView1.Columns.Count -1].Value = aItemString;
+
+            //固定在表格底部
+            if (isGridBottom)
+            {
+                //MessageBox.Show("固定在表格底部");
+                if (dataGridView1.Rows.Count > 2)
+                    dataGridView1.CurrentCell = dataGridView1.Rows[this.dataGridView1.Rows.Count - 1].Cells[0];
             }
         }
+
+        public void setRichText(string setSource = null)
+        {
+            string aJsonString = "";
+            JArray ajson = new JArray();
+            ArrayList colorString = new ArrayList();
+            ArrayList blackString = new ArrayList();
+            string extraString = "";
+
+            richTextBox1.Clear();
+            if (setSource == "listBox")
+            {
+                if (listBox1.Items.Count == 0)
+                    return;
+                if (listBox1.SelectedItem == null)
+                    aJsonString = listBox1.Items[listBox1.Items.Count - 1].ToString();
+                else
+                    aJsonString = listBox1.SelectedItem.ToString();
+                
+            }
+            else
+            {
+                if (dataGridView1.SelectedRows.Count == 0)
+                    return;
+                //MessageBox.Show("dataGridView1.CurrentRow.Index\n" + dataGridView1.CurrentRow.Index +
+                //    "\nallFilterData.Count.ToString: " + allFilterData.Count.ToString());
+                aJsonString = allFilterData[dataGridView1.CurrentRow.Index].ToString();
+            }
+
+            try
+            {
+                aJsonString = "[" + aJsonString + "]";  //JArray.parse只能解析数组
+                ajson = JArray.Parse(aJsonString);
+            }
+            catch
+            {
+                showErrorForm.setErrorTextToRich("JArray.Parse 报错：\n" + aJsonString);
+                showErrorForm.Show();
+                showErrorForm.TopMost = true;
+            }
+            
+
+
+            ////先显示高亮字段
+            // foreach (var kv in ajson[0])
+            // {
+            //     string kvs = kv.ToString();
+            //     if (kvs.Contains("extractmap"))
+            //     {
+
+            //     }
+            //     else if (filters.Count != 0 && (doFilter(kvs) || doHighlight(kvs)))
+            //     {
+            //         //MessageBox.Show(kvs);
+            //         richTextBox1.SelectionColor = Color.OrangeRed;       
+            //         richTextBox1.Text.Insert(hightIndex, kvs + "\n");
+            //         richTextBox1.Text
+            //         //hightIndex += 1;
+            //         richTextBox1.SelectionColor = Color.Black;
+            //     }
+            //     else
+            //     {
+            //         richTextBox1.AppendText(kvs + "\n");
+            //     }
+
+
+            richTextBox1.SuspendLayout();
+            if (filters.Count == 0 && highLights.Count == 0)
+            {
+                foreach (var kv in ajson[0])
+                {
+                    string kvs = kv.ToString();
+                    if (kvs.Contains("extractmap"))
+                    {
+                        addExtramapToRichTextBox(kvs);
+                    }
+                    else
+                    {
+                        richTextBox1.AppendText(kvs + "\n");
+                    }                    
+                }
+            }
+            else
+            {   //将各字段分类，用于区分显示不同颜色
+                //这种方法僵硬且效率低，但我试过其他方法没有这种逻辑清晰，且各种bug难维护
+                foreach (var kv in ajson[0])
+                {
+                    string kvs = kv.ToString();                   
+                    if (kvs.Contains("extractmap"))
+                    {
+                        extraString = kvs;
+                        continue;
+                    }
+                    if (filters.Count != 0 && doFilter(kvs))
+                    {
+                        colorString.Add(kv);
+                        continue;
+                    }
+                    if (doHighlight(kvs))
+                    {
+                        colorString.Add(kv);
+                        continue;
+                    }
+                    blackString.Add(kv);
+                }
+
+                //先显示高亮颜色的字段
+                foreach (var arr in colorString)
+                {
+                    richTextBox1.SelectionColor = Color.OrangeRed;
+                    string str = arr.ToString();
+                    richTextBox1.AppendText(str + "\n");                    
+                }
+                richTextBox1.SelectionColor = Color.Black;
+
+                //再显示extramap字段
+                addExtramapToRichTextBox(extraString);
+
+                //最后显示普通字段
+                foreach (var arr in blackString)
+                {
+                    string str = arr.ToString();
+                    richTextBox1.AppendText(str + "\n");
+                }
+            }
+            richTextBox1.SuspendLayout();
+
+
+
+
+            ////JObject ajson2 = (JObject)JsonConvert.DeserializeObject(aJsonString);
+
+
+            ////ArrayList aJsonBeforeSort = new ArrayList();
+            ////foreach (var one in ajson)
+            ////{
+            ////    string ss = one.ToString();
+            ////    if (ss.Contains("extractmap"))
+            ////    {
+            ////        ss = ss.Replace("\\", "") + "\n";
+            ////        aJsonBeforeSort.Insert(0, ss);
+            ////    }
+            ////    else
+            ////    {
+            ////        aJsonBeforeSort.Add(ss + "\n");
+            ////    }
+            ////}
+            ////foreach (string one in aJsonBeforeSort)
+            ////{
+            ////    richTextBox1.AppendText(one.ToString());
+            ////}
+
+            //foreach (var kv in ajson[0])
+            //{
+            //    string kvs = kv.ToString();
+            //    if (kvs.Contains("extractmap"))
+            //    {
+            //        kvs = kvs.Replace("\\\"", "\"");
+            //        string extraJsonString = "[{" + kvs.Substring(16, kvs.Length - 17) + "]";
+            //        JArray extraJson = JArray.Parse(extraJsonString);
+
+            //        richTextBox1.AppendText("\"extractmap\": \"{\n");
+            //        foreach (var extraItem in extraJson[0])
+            //        {
+            //            richTextBox1.AppendText("    ");
+            //            richTextBoxAddColorText(extraItem.ToString());
+            //        }
+            //        richTextBox1.AppendText("}\"\n");
+            //        continue;
+            //    }
+            //    else
+            //        richTextBoxAddColorText(kvs);
+            //}
+        }
+
+        public void addExtramapToRichTextBox(string extraString)
+        {
+            extraString = extraString.Replace("\\\"", "\"");
+            string extraJsonString = "[{" + extraString.Substring(16, extraString.Length - 17) + "]";
+            JArray extraJson = JArray.Parse(extraJsonString);
+            richTextBox1.AppendText("\"extractmap\": \"{\n");
+            foreach (var extraItem in extraJson[0])
+            {
+                richTextBox1.AppendText("    ");
+                richTextBoxAddColorText(extraItem.ToString());
+            }
+            richTextBox1.AppendText("}\"\n");
+        }
+
         public void richTextBoxAddColorText(string string2add)
         { 
                 //设置过滤字段颜色
