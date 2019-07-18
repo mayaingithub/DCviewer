@@ -196,6 +196,7 @@ namespace DCviewer
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(931, 24);
             this.textBox2.TabIndex = 2;
+            this.textBox2.Text = "category _ac_type";
             this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox2_KeyPress);
             this.textBox2.Leave += new System.EventHandler(this.TextBox2_Leave);
             // 
@@ -257,8 +258,19 @@ namespace DCviewer
                 //超上限的处理
                 if (allData.Count >= maxData)
                 {
-                    if (doFilter(allData[0].ToString()))
+                    if (doFilter(allData[0].ToString()))    //如果超出上限的这条是满足过滤条件显示在表格里的第1个
+                    {
+                        if (dataGridView1.CurrentRow.Index == 0)
+                        {
+                            isGridBottom = true;
+                            preListBox1SelectedIndex = 0;
+                            dataGridView1.ClearSelection();
+                        }
+                        allFilterData.RemoveAt(0);
                         dataGridView1.Rows.RemoveAt(0);
+                        preGridRowNum -= 1;
+                    }
+                        
                     //    listBox1.Items.RemoveAt(0);
 
                     allData.RemoveAt(0);
@@ -266,14 +278,25 @@ namespace DCviewer
                 //无论如何都添加新的
                 allData.Add(aJsonString);
                 
+                
                 if (doFilter(aJsonString))
                 {
                     if (allFilterData.Count >= maxData)
                     {
-                        allFilterData.RemoveAt(0);
+                        //MessageBox.Show(dataGridView1.CurrentRow.Index.ToString());
+                        //选中的行是超出maxData的第一行，将被删除并重置
+                        if (dataGridView1.CurrentRow.Index == 0)
+                        {
+                            //MessageBox.Show("will out of range and clear");
+                            dataGridView1.ClearSelection();
+                            isGridBottom = true;
+                            preListBox1SelectedIndex = 0;
+                        }
+                        allFilterData.RemoveAt(0);                        
                     }
                     allFilterData.Add(aJsonString);
                     addOneToGridView(aJsonString);
+                    preGridRowNum += 1;
                     //addListBoxItem(aJsonString);                    
                 }
             }
@@ -321,7 +344,8 @@ namespace DCviewer
             if (allFilterData.Count == 0)
                 return;
             
-            isGridSelectedIndexCanBeUpdated = false;                        
+            isGridSelectedIndexCanBeUpdated = false;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             dataGridView1.SuspendLayout();            
             foreach (var eachItem in allFilterData)
             {
@@ -332,6 +356,7 @@ namespace DCviewer
             //preListBox1SelectedIndex = 0;
 
             dataGridView1.ResumeLayout();
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             isGridSelectedIndexCanBeUpdated = true;
             setRichText();
         }
@@ -341,12 +366,12 @@ namespace DCviewer
         {
             int index = dataGridView1.Rows.Add();
             //isGridSelectedIndexCanBeUpdated = false;
-      
+
             //判断是否要增加列
             if (filters.Count > 0)
             {
                 for (int i = filters.Count; i > 0; i--)
-                {   
+                {
                     string aFilterString = filters[i - 1].ToString();
                     //判断过滤关键字是否已是列头
                     if (defaultColumns.Contains(aFilterString) || customColumns.Contains(aFilterString))
@@ -354,7 +379,7 @@ namespace DCviewer
                     else
                     {
                         //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
-                        string pattern = string.Format("\"{0}\": \"(.*)\"", aFilterString);        
+                        string pattern = string.Format("\"{0}\": \"(.*)\"", aFilterString);
                         Match m = Regex.Match(aItemString, pattern);
                         while (m.Success)
                         {
@@ -362,9 +387,9 @@ namespace DCviewer
                             addGridColumn(aFilterString);
                             dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
                             customColumns.Add(aFilterString);
-                            m = m.NextMatch();    
-                        }                        
-                    }                        
+                            m = m.NextMatch();
+                        }
+                    }
                 }
             }
 
@@ -418,8 +443,6 @@ namespace DCviewer
             {
                 if (dataGridView1.SelectedRows.Count == 0)
                     return;
-                //MessageBox.Show("dataGridView1.CurrentRow.Index\n" + dataGridView1.CurrentRow.Index +
-                //    "\nallFilterData.Count.ToString: " + allFilterData.Count.ToString());
                 aJsonString = allFilterData[dataGridView1.CurrentRow.Index].ToString();
             }
 
