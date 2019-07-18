@@ -67,6 +67,12 @@ namespace DCviewer
 
         public void AutoTamperRequestAfter(Session oSession)
         {
+            //防止刚打开fiddler时，有数据进来但窗口还没初始化完成
+            while (!oView.IsHandleCreated)
+            {
+                ;
+            }
+
             oView.Invoke(new EventHandler(delegate
             {
                 JArray jsons = new JArray();
