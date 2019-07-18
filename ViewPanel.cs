@@ -12,7 +12,7 @@ namespace DCviewer
     public partial class ViewPanel : UserControl
     {
         private int preListBox1SelectedIndex = 0;
-        private int preGridRowNum = 0;   //辅助判断gridselected是手动还是自动切到新行的
+        private int preGridRowNum = -1;   //+1是之前的总行数，辅助判断gridselected是手动还是自动切到新行的
         private bool isGridBottom = true;   //是否将表格显示在底部
         private bool isGridSelectedIndexCanBeUpdated = true;
         private ArrayList defaultColumns = new ArrayList{ "all", "_ac_type", "sub_category", "category"};
@@ -72,6 +72,7 @@ namespace DCviewer
             //获取过滤关键字                 
             if (e.KeyChar == (char)Keys.Enter)
             {
+                e.Handled = true;
                 reFilter();
 
                 //作废listbox
@@ -105,6 +106,7 @@ namespace DCviewer
             //获取高亮关键字            
             if (e.KeyChar == (char)Keys.Enter)
             {
+                e.Handled = true;
                 reHighlights();
             }            
         }
@@ -148,9 +150,10 @@ namespace DCviewer
                     }
                 }
             }
+            dataGridView1.ClearSelection();
             isGridBottom = true;
             preListBox1SelectedIndex = 0;
-            preGridRowNum = allFilterData.Count;
+            preGridRowNum = allFilterData.Count -1;
             setGridView();
             isGridBottom = true;    //过滤显示完成后需要再次初始化isGridBottom
         }
@@ -193,19 +196,37 @@ namespace DCviewer
 
         private void DataGridView1_SelectionChanged(object sender, EventArgs e)
         {
-            
             int id = -1;
             if (isGridBottom && dataGridView1.Rows.Count == 1)
             {
                 //MessageBox.Show("make sure return\n"+ isGridBottom.ToString()+"\n"+dataGridView1.Rows.Count.ToString());
                 return;
-            }
+            }            
 
             //int id = dataGridView1.CurrentRow.Index;      表格的选中行的取法，各种难以捉摸
             //int id = e.Row.Index;                         表格的选中行的取法，各种难以捉摸
             if (dataGridView1.SelectedRows.Count > 0)
             {
                 id = dataGridView1.SelectedRows[0].Index;
+            }
+
+            //超出上限被顶掉了，重新置到底部
+            //if (dataGridView1.Rows.Count < preGridRowNum + 1)
+            //{
+            //    MessageBox.Show("dataGridView1.Rows.Count < preGridRowNum + 1"
+            //        + "\nisGridBottom: " + isGridBottom.ToString()
+            //        + "\npreListBox1SelectedIndex: " + preListBox1SelectedIndex.ToString());
+            //}
+                
+            if (dataGridView1.Rows.Count < preGridRowNum + 1 && isGridBottom && preListBox1SelectedIndex <=0)
+            {
+                //MessageBox.Show("dataGridView1.Rows.Count: " + dataGridView1.Rows.Count.ToString()
+                //    + "\npreGridRowNum +1: " + (preGridRowNum + 1).ToString()
+                //    + "\npreListBox1SelectedIndex: " + preListBox1SelectedIndex.ToString());
+                dataGridView1.ClearSelection();
+                isGridBottom = true;
+                preListBox1SelectedIndex = id;
+                return;
             }
 
             //MessageBox.Show("in SelectionChanged\n" +
@@ -219,17 +240,24 @@ namespace DCviewer
                 {
                     if (id > preGridRowNum) //如果自动选中的是新加一行，而不是手选的
                     {
-                        preGridRowNum = id;
+                        preGridRowNum = id -1;
+                        //MessageBox.Show("if (id > preGridRowNum)");
                     }
                     else
                     {
+                        //MessageBox.Show("in else\n" + "preGridRowNum: " + preGridRowNum.ToString());
                         preListBox1SelectedIndex = id;
-                        isGridBottom = false;
+                        //if (isGridBottom && preGridRowNum > 98)
+                        //    MessageBox.Show("id: " + id.ToString()
+                        //        + "\npreGridRowNum:" + preGridRowNum.ToString());
+                        if (id >= 0)
+                            isGridBottom = false;
                     }
                 }
               
             }
-            setRichText();
+            if (isGridSelectedIndexCanBeUpdated)
+                setRichText();
         }
 
         private void DataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -251,6 +279,9 @@ namespace DCviewer
                 allFilterData.Clear();
                 initDataGridView();
                 richTextBox1.Clear();
+                preGridRowNum = -1;
+                isGridBottom = true;
+                preListBox1SelectedIndex = 0;
             }
         }
 
