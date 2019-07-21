@@ -148,6 +148,10 @@ namespace DCviewer
                     {
                         allFilterData.Add(aData);
                     }
+                    if (allFilterData.Count == maxShowNum)
+                    {
+                        break;
+                    }
                 }
             }
             dataGridView1.ClearSelection();

@@ -19,6 +19,8 @@ namespace DCviewer
         private ArrayList allData = new ArrayList();
         private ArrayList allFilterData = new ArrayList();
         private ArrayList filters = new ArrayList();
+        private int maxAllDataNUm = 10000;
+        private int maxShowNum = 100;
         private string preFiltersEditText = "";
         private ArrayList highLights = new ArrayList();
         public showErrorForm showErrorForm = new showErrorForm();
@@ -84,6 +86,7 @@ namespace DCviewer
             this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer1.BackColor = System.Drawing.Color.White;
             this.splitContainer1.Location = new System.Drawing.Point(0, 71);
             this.splitContainer1.Name = "splitContainer1";
             // 
@@ -251,14 +254,16 @@ namespace DCviewer
 
         public void addData(JArray jsons)
         {
-            int maxData = 100;        
+                 
             foreach (var ajson in jsons)
             {
                 string aJsonString = ajson.ToString();         
                 //超上限的处理
-                if (allData.Count >= maxData)
-                {
-                    if (doFilter(allData[0].ToString()))    //如果超出上限的这条是满足过滤条件显示在表格里的第1个
+                if (allData.Count >= maxAllDataNUm)
+                {               
+                    allData.RemoveAt(0);
+                    //如果超出上限的这条是满足过滤条件且显示在表格里的第1个
+                    if (doFilter(allData[0].ToString()))
                     {
                         if (dataGridView1.CurrentRow.Index == 0)
                         {
@@ -270,36 +275,32 @@ namespace DCviewer
                         dataGridView1.Rows.RemoveAt(0);
                         preGridRowNum -= 1;
                     }
-                        
-                    //    listBox1.Items.RemoveAt(0);
-
-                    allData.RemoveAt(0);
                 }
                 //无论如何都添加新的
                 allData.Add(aJsonString);
-                
-                
+
+
                 if (doFilter(aJsonString))
                 {
-                    if (allFilterData.Count >= maxData)
+                    if (allFilterData.Count >= maxShowNum)
                     {
-                        //MessageBox.Show(dataGridView1.CurrentRow.Index.ToString());
                         //选中的行是超出maxData的第一行，将被删除并重置
                         if (dataGridView1.CurrentRow.Index == 0)
                         {
-                            //MessageBox.Show("will out of range and clear");
                             dataGridView1.ClearSelection();
                             isGridBottom = true;
                             preListBox1SelectedIndex = 0;
                         }
-                        allFilterData.RemoveAt(0);                        
+                        allFilterData.RemoveAt(0);      
+                        dataGridView1.Rows.RemoveAt(0);
+                        preGridRowNum -= 1;
                     }
                     allFilterData.Add(aJsonString);
                     addOneToGridView(aJsonString);
-                    preGridRowNum += 1;
-                    //addListBoxItem(aJsonString);                    
+                    preGridRowNum += 1;                 
                 }
             }
+          
             if (isGridBottom)
                 setRichText();    
         }
@@ -393,6 +394,7 @@ namespace DCviewer
                 }
             }
 
+            //打点数据显示到对应的列
             for (int i = 0; i < dataGridView1.ColumnCount; i++)
             {
                 string headerText = dataGridView1.Columns[i].HeaderText;
@@ -428,24 +430,10 @@ namespace DCviewer
             ArrayList blackString = new ArrayList();
             string extraString = "";
 
-            richTextBox1.Clear();
-            if (setSource == "listBox")
-            {
-                if (listBox1.Items.Count == 0)
-                    return;
-                if (listBox1.SelectedItem == null)
-                    aJsonString = listBox1.Items[listBox1.Items.Count - 1].ToString();
-                else
-                    aJsonString = listBox1.SelectedItem.ToString();
-                
-            }
-            else
-            {
-                if (dataGridView1.SelectedRows.Count == 0)
-                    return;
-                aJsonString = allFilterData[dataGridView1.CurrentRow.Index].ToString();
-            }
-
+            if (dataGridView1.SelectedRows.Count == 0)
+                return;
+            aJsonString = allFilterData[dataGridView1.CurrentRow.Index].ToString();
+            
             try
             {
                 aJsonString = "[" + aJsonString + "]";  //JArray.parse只能解析数组
@@ -457,7 +445,7 @@ namespace DCviewer
                 showErrorForm.Show();
                 showErrorForm.TopMost = true;
             }
-            
+
 
 
             ////先显示高亮字段
@@ -482,8 +470,9 @@ namespace DCviewer
             //         richTextBox1.AppendText(kvs + "\n");
             //     }
 
-
-            richTextBox1.SuspendLayout();
+           
+            richTextBox1.Clear();
+            richTextBox1.Visible = false;
             if (filters.Count == 0 && highLights.Count == 0)
             {
                 foreach (var kv in ajson[0])
@@ -542,9 +531,7 @@ namespace DCviewer
                     richTextBox1.AppendText(str + "\n");
                 }
             }
-            richTextBox1.SuspendLayout();
-
-
+            richTextBox1.Visible = true;
 
 
             ////JObject ajson2 = (JObject)JsonConvert.DeserializeObject(aJsonString);
@@ -813,4 +800,6 @@ namespace DCviewer
         private BindingSource violinBindingSource;
         private DataGridView dataGridView1;
     }
+
+  
 }
