@@ -80,6 +80,7 @@ namespace DCviewer
                 if (url.Contains("log.dc.cn"))
                 {
                     string body = oSession.GetRequestBodyAsString();
+
                     try
                     {
                         body = HttpUtility.UrlDecode(body);

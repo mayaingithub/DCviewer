@@ -133,20 +133,25 @@ namespace DCviewer
             filters.Clear();
             customColumns.Clear();
             foreach (var one in new ArrayList(textBox1.Text.Trim().Split(' ')))
+            {
                 if (one.ToString() != "")
                 {
                     filters.Add(one);
-                }     
-
+                }
+            }
+                 
             //重新过滤
             if (allData.Count != 0)
             {
                 allFilterData.Clear();
-                foreach (string aData in allData)
+                //foreach (string aData in allData)
+                for (int i = allData.Count; i > 0; i--)
                 {
+                    string aData = allData[i-1].ToString();
                     if (doFilter(aData))
                     {
-                        allFilterData.Add(aData);
+                        //allFilterData.Add(aData);
+                        allFilterData.Insert(0, aData);
                     }
                     if (allFilterData.Count == maxShowNum)
                     {
@@ -165,13 +170,25 @@ namespace DCviewer
 
         private void reHighlights()
         {
+            string newHighLightEditText = textBox2.Text.Trim();
+            //如果新的过滤字段内容一样，则不作后续处理
+            if (newHighLightEditText == preHighLightExitText)
+            {
+                return;
+            }
+
+            preHighLightExitText = newHighLightEditText;
             highLights.Clear();
+            customColumns.Clear();
             foreach (var one in new ArrayList(textBox2.Text.Trim().Split(' ')))
+            {
                 if (one.ToString() != "")
                 {
                     highLights.Add(one);
                 }
+            }
             //刷新显示
+            setGridView();
             setRichText();
         }
         

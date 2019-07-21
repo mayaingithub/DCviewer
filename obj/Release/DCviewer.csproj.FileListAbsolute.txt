@@ -1,0 +1,17 @@
+D:\maya_Scripts\DCviewer\bin\Release\DCviewer.dll
+D:\maya_Scripts\DCviewer\bin\Release\DCviewer.pdb
+D:\maya_Scripts\DCviewer\bin\Release\Fiddler.exe
+D:\maya_Scripts\DCviewer\bin\Release\Newtonsoft.Json.2.dll
+D:\maya_Scripts\DCviewer\bin\Release\Xceed.Zip.v5.4.dll
+D:\maya_Scripts\DCviewer\bin\Release\Xceed.FileSystem.v5.4.dll
+D:\maya_Scripts\DCviewer\bin\Release\Xceed.Compression.Formats.v5.4.dll
+D:\maya_Scripts\DCviewer\bin\Release\Xceed.Compression.v5.4.dll
+D:\maya_Scripts\DCviewer\bin\Release\Fiddler.exe.config
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.csprojAssemblyReference.cache
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.showErrorForm.resources
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.ViewPanel.resources
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.csproj.GenerateResource.cache
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.csproj.CoreCompileInputs.cache
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.csproj.CopyComplete
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.dll
+D:\maya_Scripts\DCviewer\obj\Release\DCviewer.pdb

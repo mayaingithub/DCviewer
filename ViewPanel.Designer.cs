@@ -22,6 +22,7 @@ namespace DCviewer
         private int maxAllDataNUm = 10000;
         private int maxShowNum = 100;
         private string preFiltersEditText = "";
+        private string preHighLightExitText = "";
         private ArrayList highLights = new ArrayList();
         public showErrorForm showErrorForm = new showErrorForm();
 
@@ -380,7 +381,7 @@ namespace DCviewer
                     else
                     {
                         //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
-                        string pattern = string.Format("\"{0}\": \"(.*)\"", aFilterString);
+                        string pattern = string.Format("\"{0}\": \"(.*)\"", aFilterString);                    
                         Match m = Regex.Match(aItemString, pattern);
                         while (m.Success)
                         {
@@ -388,6 +389,30 @@ namespace DCviewer
                             addGridColumn(aFilterString);
                             dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
                             customColumns.Add(aFilterString);
+                            m = m.NextMatch();
+                        }
+                    }
+                }
+            }
+            if (highLights.Count > 0)
+            {
+                for (int i = highLights.Count; i > 0; i--)
+                {
+                    string aHighLightString = highLights[i - 1].ToString();
+                    //判断高亮字段是否已是列头
+                    if (defaultColumns.Contains(aHighLightString) || customColumns.Contains(aHighLightString))
+                        continue;
+                    else
+                    {
+                        //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
+                        string pattern = string.Format("\"{0}\": \"(.*)\"", aHighLightString);
+                        Match m = Regex.Match(aItemString, pattern);
+                        while (m.Success)
+                        {
+                            //MessageBox.Show("match Success " + aFilterString);
+                            addGridColumn(aHighLightString);
+                            dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
+                            customColumns.Add(aHighLightString);
                             m = m.NextMatch();
                         }
                     }
@@ -422,7 +447,7 @@ namespace DCviewer
             }
         }
 
-        public void setRichText(string setSource = null)
+        public void setRichText()
         {
             string aJsonString = "";
             JArray ajson = new JArray();
@@ -581,8 +606,24 @@ namespace DCviewer
 
         public void addExtramapToRichTextBox(string extraString)
         {
+            while (extraString.Contains(@"\\"))
+            {
+                extraString = extraString.Replace(@"\\", @"\");
+            }
             extraString = extraString.Replace("\\\"", "\"");
             string extraJsonString = "[{" + extraString.Substring(16, extraString.Length - 17) + "]";
+
+
+            //针对实名认证extractmap里还嵌套特殊一层无法JArray.Parse的硬编码处理
+            string pattern = @"loginAuth\(\)(.*?})";
+            Match m = Regex.Match(extraJsonString, pattern);
+            while (m.Success)
+            {
+                extraJsonString = Regex.Replace(extraJsonString, pattern, m.Groups[0].ToString().Replace("\"", "").Replace(",", ", "));
+                m = m.NextMatch();
+            }
+
+
             JArray extraJson = JArray.Parse(extraJsonString);
             richTextBox1.AppendText("\"extractmap\": \"{\n");
             foreach (var extraItem in extraJson[0])
