@@ -46,6 +46,7 @@ namespace DCviewer
             columnToInsert.Name = columnName;
             columnToInsert.HeaderText = columnName;
             columnToInsert.SortMode = DataGridViewColumnSortMode.NotSortable;
+            columnToInsert.Width = 100;
             dataGridView1.Columns.Insert(0, columnToInsert);
         }
 
@@ -303,9 +304,26 @@ namespace DCviewer
                 preGridRowNum = -1;
                 isGridBottom = true;
                 preListBox1SelectedIndex = 0;
+
+                textBox1.Text = "";
+                textBox2.Text = "";
+                filters.Clear();
+                highLights.Clear();
+                preFiltersEditText = "";
+                preHighLightExitText = "";
+            }
+            if (e.Alt && e.KeyCode == Keys.D)
+            {
+                textBox1.Focus();
             }
         }
 
-  
+        private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Alt && e.KeyCode == Keys.D)
+            {
+                textBox1.Focus();
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace DCviewer
     public class Violin : IAutoTamper    // Ensure class is public, or Fiddler won't see it!
     {
         string sUserAgent = "";
-        ViewPanel oView;
+        ViewPanel oView;        
         public showErrorForm showErrorForm = new showErrorForm();
 
 
@@ -60,9 +60,11 @@ namespace DCviewer
 
         public void AutoTamperRequestBefore(Session oSession)
         {
-            oSession.oRequest["User-Agent"] = sUserAgent;
-
-                         
+            string url = oSession.fullUrl;
+            if (url.Contains("log.dc.cn"))
+            {
+                oSession.oRequest["User-Agent"] = sUserAgent;
+            }
         }
 
         public void AutoTamperRequestAfter(Session oSession)
@@ -76,20 +78,24 @@ namespace DCviewer
             oView.Invoke(new EventHandler(delegate
             {
                 JArray jsons = new JArray();
-                string url = oSession.fullUrl;
-                if (url.Contains("log.dc.cn"))
+                oView.url = oSession.fullUrl;
+                oView.rawBody = "";
+                string body = "";
+                if (oView.url.Contains("log.dc.cn"))
                 {
-                    string body = oSession.GetRequestBodyAsString();
+                    
+                    oView.rawBody = oSession.GetRequestBodyAsString();
+                    
 
                     try
                     {
-                        body = HttpUtility.UrlDecode(body);
+                        body = HttpUtility.UrlDecode(oView.rawBody);
                         body = Lis2013HISWSTest.ZipHelper.GZipDecompressString(body);
                         body = body.Trim();
                     }
                     catch
                     {
-                        showErrorForm.setErrorTextToRich("body解码 报错：\n");
+                        showErrorForm.setErrorTextToRich("body解码 报错：\n" + oView.url + "\n" + body + "\n原始数据：\n" + oView.rawBody);
                         showErrorForm.Show();
                         showErrorForm.TopMost = true;
                     }
@@ -104,7 +110,7 @@ namespace DCviewer
                         }
                         catch
                         {
-                            showErrorForm.setErrorTextToRich("body转JArray 报错：\n" + body);
+                            showErrorForm.setErrorTextToRich("body转JArray 报错：\n" + oView.url + "\n" + body + "\n原始数据：\n" + oView.rawBody);
                             showErrorForm.Show();
                             showErrorForm.TopMost = true;
                         }

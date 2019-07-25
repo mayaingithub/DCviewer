@@ -21,10 +21,10 @@ D:\maya_Scripts\DCviewer\bin\Debug\Xceed.FileSystem.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.Compression.Formats.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.Compression.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Fiddler.exe.config
+D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.showErrorForm.resources
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.ViewPanel.resources
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.GenerateResource.cache
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.CoreCompileInputs.cache
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.CopyComplete
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.dll
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.pdb
-D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.showErrorForm.resources
