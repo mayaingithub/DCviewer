@@ -60,10 +60,13 @@ namespace DCviewer
 
         public void AutoTamperRequestBefore(Session oSession)
         {
-            oSession.oRequest["User-Agent"] = sUserAgent;
-
-                         
+            string url = oSession.fullUrl;
+            if (url.Contains("log.dc.cn"))
+            {
+                oSession.oRequest["User-Agent"] = sUserAgent;
+            }                                         
         }
+
 
         public void AutoTamperRequestAfter(Session oSession)
         {
