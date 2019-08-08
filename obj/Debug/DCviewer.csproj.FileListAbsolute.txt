@@ -15,7 +15,6 @@ D:\maya_Scripts\DCviewer\DCviewer\obj\Debug\DCviewer.csproj.GenerateResource.cac
 D:\maya_Scripts\DCviewer\bin\Debug\DCviewer.dll
 D:\maya_Scripts\DCviewer\bin\Debug\DCviewer.pdb
 D:\maya_Scripts\DCviewer\bin\Debug\Fiddler.exe
-D:\maya_Scripts\DCviewer\bin\Debug\Newtonsoft.Json.2.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.Zip.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.FileSystem.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.Compression.Formats.v5.4.dll
@@ -28,3 +27,4 @@ D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.CoreCompileInputs.cache
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.CopyComplete
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.dll
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.pdb
+D:\maya_Scripts\DCviewer\bin\Debug\Newtonsoft.Json.dll
