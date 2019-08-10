@@ -312,7 +312,7 @@ namespace DCviewer
                 preFiltersEditText = "";
                 preHighLightExitText = "";
             }
-            if (e.Alt && e.KeyCode == Keys.D)
+            if (e.Control && e.KeyCode == Keys.F)
             {
                 textBox1.Focus();
             }
@@ -320,7 +320,7 @@ namespace DCviewer
 
         private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Alt && e.KeyCode == Keys.D)
+            if (e.Control && e.KeyCode == Keys.F)
             {
                 textBox1.Focus();
             }
