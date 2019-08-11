@@ -262,7 +262,8 @@ namespace DCviewer
         {                 
             foreach (var ajson in jsons)
             {
-                string aJsonString = ajson.ToString();         
+                string aJsonString = ajson.ToString();
+                
                 //超上限的处理
                 if (allData.Count >= maxAllDataNUm)
                 {               
@@ -371,7 +372,11 @@ namespace DCviewer
         public void addOneToGridView(string aItemString)
         {
             int index = dataGridView1.Rows.Add();
-            //isGridSelectedIndexCanBeUpdated = false;
+            while (aItemString.Contains(@"\\"))
+            {
+                aItemString = aItemString.Replace(@"\\", @"\");
+            }
+            aItemString = aItemString.Replace("\\\"", "\"");
 
             //判断是否要增加列
             if (filters.Count > 0)
@@ -383,13 +388,11 @@ namespace DCviewer
                     if (defaultColumns.Contains(aFilterString) || customColumns.Contains(aFilterString))
                         continue;
                     else
-                    {
-                        //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
-                        string pattern = string.Format("\"{0}\": \"(.*)\"", aFilterString);                    
+                    {                        
+                        string pattern = string.Format("\"{0}\":\\s?\"(.*?)\"", aFilterString);                           
                         Match m = Regex.Match(aItemString, pattern);
                         while (m.Success)
                         {
-                            //MessageBox.Show("match Success " + aFilterString);
                             addGridColumn(aFilterString);
                             dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
                             customColumns.Add(aFilterString);
@@ -408,12 +411,10 @@ namespace DCviewer
                         continue;
                     else
                     {
-                        //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
-                        string pattern = string.Format("\"{0}\": \"(.*)\"", aHighLightString);
+                        string pattern = string.Format("\"{0}\":\\s?\"(.*?)\"", aHighLightString);
                         Match m = Regex.Match(aItemString, pattern);
                         while (m.Success)
                         {
-                            //MessageBox.Show("match Success " + aFilterString);
                             addGridColumn(aHighLightString);
                             dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
                             customColumns.Add(aHighLightString);
@@ -427,7 +428,7 @@ namespace DCviewer
             for (int i = 0; i < dataGridView1.ColumnCount; i++)
             {
                 string headerText = dataGridView1.Columns[i].HeaderText;
-                string pattern = string.Format("\"{0}\": \"(.*)\"", headerText);
+                string pattern = string.Format("\"{0}\":\\s?\"(.*?)\"", headerText);
                 if (aItemString.Contains(dataGridView1.Columns[i].Name))
                 {
                     Match m = Regex.Match(aItemString, pattern);
@@ -445,7 +446,6 @@ namespace DCviewer
             //固定在表格底部
             if (isGridBottom)
             {
-                //MessageBox.Show("固定在表格底部");
                 if (dataGridView1.Rows.Count > 2)
                     dataGridView1.CurrentCell = dataGridView1.Rows[this.dataGridView1.Rows.Count - 1].Cells[0];
             }

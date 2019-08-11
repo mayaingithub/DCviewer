@@ -74,24 +74,7 @@ namespace DCviewer
             if (e.KeyChar == (char)Keys.Enter)
             {
                 e.Handled = true;
-                reFilter();
-
-                //作废listbox
-                //listBox1.Items.Clear();
-                //if (allData.Count != 0)
-                //{
-                //    listBox1.BeginUpdate();
-                //    foreach (string aData in allData)
-                //    {
-                //        if (doFilter(aData))
-                //        {                             
-                //            addListBoxItem(aData);
-                //        }
-                //    }
-                //    listBox1.EndUpdate();
-                //}                
-                //setRichText();                
-
+                reFilter();               
             }         
         }
 
@@ -124,7 +107,6 @@ namespace DCviewer
             string newFiltersEditText = textBox1.Text.Trim();
 
             //如果新的过滤字段内容一样，则不作后续处理
-            //if (String.Compare(newFiltersEditText, preFiltersEditText) == 0)
             if (newFiltersEditText == preFiltersEditText)
             {
                 return;
@@ -188,9 +170,12 @@ namespace DCviewer
                     highLights.Add(one);
                 }
             }
-            //刷新显示
+            //刷新显示     
+            int saveIndex = dataGridView1.CurrentRow.Index;
             setGridView();
+            dataGridView1.CurrentCell = dataGridView1.Rows[saveIndex].Cells[0];
             setRichText();
+            
         }
         
 
@@ -221,7 +206,6 @@ namespace DCviewer
             int id = -1;
             if (isGridBottom && dataGridView1.Rows.Count == 1)
             {
-                //MessageBox.Show("make sure return\n"+ isGridBottom.ToString()+"\n"+dataGridView1.Rows.Count.ToString());
                 return;
             }            
 
@@ -312,7 +296,7 @@ namespace DCviewer
                 preFiltersEditText = "";
                 preHighLightExitText = "";
             }
-            if (e.Control && e.KeyCode == Keys.F)
+            if (e.Alt && e.KeyCode == Keys.D)
             {
                 textBox1.Focus();
             }
@@ -320,7 +304,7 @@ namespace DCviewer
 
         private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control && e.KeyCode == Keys.F)
+            if (e.Alt && e.KeyCode == Keys.D)
             {
                 textBox1.Focus();
             }
