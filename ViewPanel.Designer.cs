@@ -623,6 +623,8 @@ namespace DCviewer
             extraJsonString = extraJsonString.Replace("}", "}]");
             extraJsonString = extraJsonString.Replace("\"[{", "[{");
             extraJsonString = extraJsonString.Replace("}]\"", "}]");
+            extraJsonString = extraJsonString.Replace("\"[[", "[");
+            extraJsonString = extraJsonString.Replace("]]\"", "]");
 
             //针对实名认证extractmap里还嵌套特殊一层无法JArray.
             if (extraJsonString.Contains(@"loginAuth()"))
