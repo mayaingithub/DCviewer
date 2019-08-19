@@ -289,12 +289,12 @@ namespace DCviewer
                 isGridBottom = true;
                 preListBox1SelectedIndex = 0;
 
-                textBox1.Text = "";
-                textBox2.Text = "";
-                filters.Clear();
-                highLights.Clear();
-                preFiltersEditText = "";
-                preHighLightExitText = "";
+                //textBox1.Text = "";
+                //textBox2.Text = "";
+                //filters.Clear();
+                //highLights.Clear();
+                //preFiltersEditText = "";
+                //preHighLightExitText = "";
             }
             if (e.Alt && e.KeyCode == Keys.D)
             {

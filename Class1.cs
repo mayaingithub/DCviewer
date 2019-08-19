@@ -121,10 +121,6 @@ namespace DCviewer
                             int endIndex = body.LastIndexOf("]");
                             body = body.Substring(startIndex, endIndex - startIndex + 1);
 
-<<<<<<< HEAD
-                            body = body.Substring(13, body.Length - 14);                                                        
-=======
->>>>>>> testA
                             jsons = JArray.Parse(body);
                         }
                         catch
