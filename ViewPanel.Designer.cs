@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
+using System.IO.Compression;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -16,6 +18,8 @@ namespace DCviewer
         /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+        public string rawBody = "";
+        public string url = "";
         private ArrayList allData = new ArrayList();
         private ArrayList allFilterData = new ArrayList();
         private ArrayList filters = new ArrayList();
@@ -111,7 +115,7 @@ namespace DCviewer
             this.dataGridView1.AllowUserToDeleteRows = false;
             this.dataGridView1.AllowUserToOrderColumns = true;
             this.dataGridView1.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
@@ -192,6 +196,7 @@ namespace DCviewer
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "";
             this.richTextBox1.WordWrap = false;
+            this.richTextBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.RichTextBox1_KeyDown);
             // 
             // textBox2
             // 
@@ -254,11 +259,11 @@ namespace DCviewer
 
 
         public void addData(JArray jsons)
-        {
-                 
+        {                 
             foreach (var ajson in jsons)
             {
-                string aJsonString = ajson.ToString();         
+                string aJsonString = ajson.ToString();
+                
                 //超上限的处理
                 if (allData.Count >= maxAllDataNUm)
                 {               
@@ -367,7 +372,11 @@ namespace DCviewer
         public void addOneToGridView(string aItemString)
         {
             int index = dataGridView1.Rows.Add();
-            //isGridSelectedIndexCanBeUpdated = false;
+            while (aItemString.Contains(@"\\"))
+            {
+                aItemString = aItemString.Replace(@"\\", @"\");
+            }
+            aItemString = aItemString.Replace("\\\"", "\"");
 
             //判断是否要增加列
             if (filters.Count > 0)
@@ -379,13 +388,11 @@ namespace DCviewer
                     if (defaultColumns.Contains(aFilterString) || customColumns.Contains(aFilterString))
                         continue;
                     else
-                    {
-                        //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
-                        string pattern = string.Format("\"{0}\": \"(.*)\"", aFilterString);                    
+                    {                        
+                        string pattern = string.Format("\"{0}\":\\s?\"(.*?)\"", aFilterString);                           
                         Match m = Regex.Match(aItemString, pattern);
                         while (m.Success)
                         {
-                            //MessageBox.Show("match Success " + aFilterString);
                             addGridColumn(aFilterString);
                             dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
                             customColumns.Add(aFilterString);
@@ -404,12 +411,10 @@ namespace DCviewer
                         continue;
                     else
                     {
-                        //MessageBox.Show("try to match " + aFilterString +"\n" + aItemString);
-                        string pattern = string.Format("\"{0}\": \"(.*)\"", aHighLightString);
+                        string pattern = string.Format("\"{0}\":\\s?\"(.*?)\"", aHighLightString);
                         Match m = Regex.Match(aItemString, pattern);
                         while (m.Success)
                         {
-                            //MessageBox.Show("match Success " + aFilterString);
                             addGridColumn(aHighLightString);
                             dataGridView1.Rows[index].Cells[0].Value = m.Groups[1].ToString();
                             customColumns.Add(aHighLightString);
@@ -423,7 +428,7 @@ namespace DCviewer
             for (int i = 0; i < dataGridView1.ColumnCount; i++)
             {
                 string headerText = dataGridView1.Columns[i].HeaderText;
-                string pattern = string.Format("\"{0}\": \"(.*)\"", headerText);
+                string pattern = string.Format("\"{0}\":\\s?\"(.*?)\"", headerText);
                 if (aItemString.Contains(dataGridView1.Columns[i].Name))
                 {
                     Match m = Regex.Match(aItemString, pattern);
@@ -441,7 +446,6 @@ namespace DCviewer
             //固定在表格底部
             if (isGridBottom)
             {
-                //MessageBox.Show("固定在表格底部");
                 if (dataGridView1.Rows.Count > 2)
                     dataGridView1.CurrentCell = dataGridView1.Rows[this.dataGridView1.Rows.Count - 1].Cells[0];
             }
@@ -466,38 +470,12 @@ namespace DCviewer
             }
             catch
             {
-                showErrorForm.setErrorTextToRich("JArray.Parse 报错：\n" + aJsonString);
+                showErrorForm.setErrorTextToRich("JArray.Parse 报错：\n" + url + "\n" + aJsonString + "\n原始数据：\n" + rawBody);
                 showErrorForm.Show();
                 showErrorForm.TopMost = true;
             }
-
-
-
-            ////先显示高亮字段
-            // foreach (var kv in ajson[0])
-            // {
-            //     string kvs = kv.ToString();
-            //     if (kvs.Contains("extractmap"))
-            //     {
-
-            //     }
-            //     else if (filters.Count != 0 && (doFilter(kvs) || doHighlight(kvs)))
-            //     {
-            //         //MessageBox.Show(kvs);
-            //         richTextBox1.SelectionColor = Color.OrangeRed;       
-            //         richTextBox1.Text.Insert(hightIndex, kvs + "\n");
-            //         richTextBox1.Text
-            //         //hightIndex += 1;
-            //         richTextBox1.SelectionColor = Color.Black;
-            //     }
-            //     else
-            //     {
-            //         richTextBox1.AppendText(kvs + "\n");
-            //     }
-
            
             richTextBox1.Clear();
-            richTextBox1.Visible = false;
             if (filters.Count == 0 && highLights.Count == 0)
             {
                 foreach (var kv in ajson[0])
@@ -510,6 +488,11 @@ namespace DCviewer
                     else
                     {
                         richTextBox1.AppendText(kvs + "\n");
+                        //对特殊字段加一行解码显示
+                        if (kvs.Contains("gamereplay"))
+                        {
+                            richTextBox1.AppendText(gamereplay(kvs) + "\n");
+                        }
                     }                    
                 }
             }
@@ -518,7 +501,9 @@ namespace DCviewer
                 //这种方法僵硬且效率低，但我试过其他方法没有这种逻辑清晰，且各种bug难维护
                 foreach (var kv in ajson[0])
                 {
-                    string kvs = kv.ToString();                   
+
+                    string kvs = kv.ToString();
+                    //对特殊字段加一行解码显示
                     if (kvs.Contains("extractmap"))
                     {
                         extraString = kvs;
@@ -542,7 +527,12 @@ namespace DCviewer
                 {
                     richTextBox1.SelectionColor = Color.OrangeRed;
                     string str = arr.ToString();
-                    richTextBox1.AppendText(str + "\n");                    
+                    richTextBox1.AppendText(str + "\n");
+                    if (str.Contains("gamereplay"))
+                    {
+                        richTextBox1.SelectionColor = Color.OrangeRed;
+                        richTextBox1.AppendText(gamereplay(str) + "\n");
+                    }
                 }
                 richTextBox1.SelectionColor = Color.Black;
 
@@ -554,9 +544,13 @@ namespace DCviewer
                 {
                     string str = arr.ToString();
                     richTextBox1.AppendText(str + "\n");
+                    if (str.Contains("gamereplay"))
+                    {
+                        richTextBox1.AppendText(gamereplay(str) + "\n");
+                    }
                 }
             }
-            richTextBox1.Visible = true;
+ 
 
 
             ////JObject ajson2 = (JObject)JsonConvert.DeserializeObject(aJsonString);
@@ -606,65 +600,105 @@ namespace DCviewer
 
         public void addExtramapToRichTextBox(string extraString)
         {
+            JArray extraJson = new JArray();
+
             while (extraString.Contains(@"\\"))
             {
                 extraString = extraString.Replace(@"\\", @"\");
             }
             extraString = extraString.Replace("\\\"", "\"");
-            string extraJsonString = "[{" + extraString.Substring(16, extraString.Length - 17) + "]";
-
-
-            //针对实名认证extractmap里还嵌套特殊一层无法JArray.Parse的硬编码处理
-            string pattern = @"loginAuth\(\)(.*?})";
-            Match m = Regex.Match(extraJsonString, pattern);
-            while (m.Success)
             {
-                extraJsonString = Regex.Replace(extraJsonString, pattern, m.Groups[0].ToString().Replace("\"", "").Replace(",", ", "));
-                m = m.NextMatch();
+                //抓幽灵bug
+                if (extraString.Length < 16)
+                {
+                    showErrorForm.setErrorTextToRich("extraString.Length < 16 报错：\n" + url + "\n" + extraString + "\n原始数据：\n" + rawBody);
+                    showErrorForm.Show();
+                    showErrorForm.TopMost = true;
+                }
+            }
+            string extraJsonString = extraString.Substring(15, extraString.Length - 16);
+
+            //格式化数据,使可以解析出一层json或嵌套json
+            extraJsonString = extraJsonString.Replace("{", "[{");
+            extraJsonString = extraJsonString.Replace("}", "}]");
+            extraJsonString = extraJsonString.Replace("\"[{", "[{");
+            extraJsonString = extraJsonString.Replace("}]\"", "}]");
+            extraJsonString = extraJsonString.Replace("\"[[", "[");
+            extraJsonString = extraJsonString.Replace("]]\"", "]");
+
+            //针对实名认证extractmap里还嵌套特殊一层无法JArray.
+            if (extraJsonString.Contains(@"loginAuth()"))
+            {
+                extraJsonString = extraJsonString.Replace("\":\"loginAuth()", ":loginAuth()\":");
             }
 
-
-            JArray extraJson = JArray.Parse(extraJsonString);
+            try
+            {
+                extraJson = JArray.Parse(extraJsonString);
+            }            
+            catch
+            {
+                showErrorForm.setErrorTextToRich("extraJson.Parse 报错：\n" + url + "\n" + extraJsonString + "\n原始数据：\n" + rawBody);
+                showErrorForm.Show();
+                showErrorForm.TopMost = true;
+            }
             richTextBox1.AppendText("\"extractmap\": \"{\n");
+
             foreach (var extraItem in extraJson[0])
             {
+                string extraItemString = extraItem.ToString();
                 richTextBox1.AppendText("    ");
-                richTextBoxAddColorText(extraItem.ToString());
+                //对嵌套的json，进行格式化输出    
+                if (extraItemString.Contains("[") && extraItemString.Contains("{"))
+                {
+                    extraItemString = extraItemString.Replace("[", "").Replace("]", "");
+                    extraItemString = extraItemString.Replace("  ", "    ");
+                    extraItemString = extraItemString.Replace("\n", "");
+                }
+                richTextBoxAddColorText(extraItemString);
             }
             richTextBox1.AppendText("}\"\n");
         }
 
         public void richTextBoxAddColorText(string string2add)
         { 
-                //设置过滤字段颜色
-                foreach (var afilter in filters)
+            //设置过滤字段颜色
+            foreach (var afilter in filters)
+            {
+                string afs = afilter.ToString();
+                if (filters[0].ToString() == "")
+                    break;
+                if (string2add.Contains(afs))
                 {
-                    string afs = afilter.ToString();
-                    if (filters[0].ToString() == "")
-                        break;
-                    if (string2add.Contains(afs))
-                    {
-                        richTextBox1.SelectionColor = Color.OrangeRed;
-                        break;
-                    }                                              
-                }
-                //设置高亮字段颜色
-                foreach (var ahighLight in highLights)
+                    richTextBox1.SelectionColor = Color.OrangeRed;
+                    break;
+                }                                              
+            }
+            //设置高亮字段颜色
+            foreach (var ahighLight in highLights)
+            {
+                string ahl = ahighLight.ToString();
+                if (highLights[0].ToString() == "")
+                    break;
+                if (string2add.Contains(ahl))
                 {
-                    string ahl = ahighLight.ToString();
-                    if (highLights[0].ToString() == "")
-                        break;
-                    if (string2add.Contains(ahl))
-                    {
-                    richTextBox1.SelectionColor = Color.OrangeRed;    //DeepPink;
-                        break;
-                    }
+                richTextBox1.SelectionColor = Color.OrangeRed;    //DeepPink;
+                    break;
                 }
+            }
                 
-                richTextBox1.AppendText(string2add + "\n");
-                richTextBox1.SelectionColor = Color.Black;
-
+            richTextBox1.AppendText(string2add + "\n");
+            richTextBox1.SelectionColor = Color.Black;
         }
+
+        public string gamereplay(string raw)
+        {
+            string str = raw.Substring(15,raw.Length -16);
+            byte[] bb = Convert.FromBase64String(str);
+            byte[] unzip = Lis2013HISWSTest.ZipHelper.Decompress(bb);
+            return "\"gamereplay解码\": \n" + System.Text.Encoding.Default.GetString(unzip);            
+        }
+
 
         //  public void BindTreeView(string strJson)
         //{

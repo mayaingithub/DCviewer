@@ -15,18 +15,19 @@ D:\maya_Scripts\DCviewer\DCviewer\obj\Debug\DCviewer.csproj.GenerateResource.cac
 D:\maya_Scripts\DCviewer\bin\Debug\DCviewer.dll
 D:\maya_Scripts\DCviewer\bin\Debug\DCviewer.pdb
 D:\maya_Scripts\DCviewer\bin\Debug\Fiddler.exe
-D:\maya_Scripts\DCviewer\bin\Debug\Newtonsoft.Json.2.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.Zip.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.FileSystem.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.Compression.Formats.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Xceed.Compression.v5.4.dll
 D:\maya_Scripts\DCviewer\bin\Debug\Fiddler.exe.config
+D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.showErrorForm.resources
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.ViewPanel.resources
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.GenerateResource.cache
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.CoreCompileInputs.cache
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.csproj.CopyComplete
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.dll
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.pdb
+<<<<<<< HEAD
 D:\maya_Scripts\DCviewer\obj\Debug\DCviewer.showErrorForm.resources
 D:\mayaingithub\DCviewer\bin\Debug\DCviewer.dll
 D:\mayaingithub\DCviewer\bin\Debug\DCviewer.pdb
@@ -44,3 +45,6 @@ D:\mayaingithub\DCviewer\obj\Debug\DCviewer.csproj.CoreCompileInputs.cache
 D:\mayaingithub\DCviewer\obj\Debug\DCviewer.csproj.CopyComplete
 D:\mayaingithub\DCviewer\obj\Debug\DCviewer.dll
 D:\mayaingithub\DCviewer\obj\Debug\DCviewer.pdb
+=======
+D:\maya_Scripts\DCviewer\bin\Debug\Newtonsoft.Json.dll
+>>>>>>> 9b88a99144c86ddcea564aef0f8d03b32aa4fd86
