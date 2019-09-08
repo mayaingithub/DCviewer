@@ -466,7 +466,7 @@ namespace DCviewer
             try
             {
                 aJsonString = "[" + aJsonString + "]";  //JArray.parse只能解析数组
-                ajson = JArray.Parse(aJsonString);
+                ajson = JArray.Parse(aJsonString);                
             }
             catch
             {
@@ -601,12 +601,13 @@ namespace DCviewer
         public void addExtramapToRichTextBox(string extraString)
         {
             JArray extraJson = new JArray();
-
+            
             while (extraString.Contains(@"\\"))
             {
                 extraString = extraString.Replace(@"\\", @"\");
             }
             extraString = extraString.Replace("\\\"", "\"");
+            
             {
                 //抓幽灵bug
                 if (extraString.Length < 16)
@@ -617,21 +618,23 @@ namespace DCviewer
                 }
             }
             string extraJsonString = extraString.Substring(15, extraString.Length - 16);
-
+            
             //格式化数据,使可以解析出一层json或嵌套json
             extraJsonString = extraJsonString.Replace("{", "[{");
             extraJsonString = extraJsonString.Replace("}", "}]");
-            extraJsonString = extraJsonString.Replace("\"[{", "[{");
-            extraJsonString = extraJsonString.Replace("}]\"", "}]");
+            if (extraJsonString.Contains("ads_error"))
+            {
+                extraJsonString = extraJsonString.Replace("\"[{", "[{");
+                extraJsonString = extraJsonString.Replace("}]\"", "}]");
+            }
             extraJsonString = extraJsonString.Replace("\"[[", "[");
             extraJsonString = extraJsonString.Replace("]]\"", "]");
 
             //针对实名认证extractmap里还嵌套特殊一层无法JArray.
             if (extraJsonString.Contains(@"loginAuth()"))
-            {
+            {                
                 extraJsonString = extraJsonString.Replace("\":\"loginAuth()", ":loginAuth()\":");
             }
-
             try
             {
                 extraJson = JArray.Parse(extraJsonString);
@@ -641,6 +644,8 @@ namespace DCviewer
                 showErrorForm.setErrorTextToRich("extraJson.Parse 报错：\n" + url + "\n" + extraJsonString + "\n原始数据：\n" + rawBody);
                 showErrorForm.Show();
                 showErrorForm.TopMost = true;
+                //richTextBox1.AppendText("\"extractmap\": 内容格式无法解析\n");
+                //return;
             }
             richTextBox1.AppendText("\"extractmap\": \"{\n");
 
