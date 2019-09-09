@@ -470,9 +470,13 @@ namespace DCviewer
             }
             catch
             {
-                showErrorForm.setErrorTextToRich("JArray.Parse 报错：\n" + url + "\n" + aJsonString + "\n原始数据：\n" + rawBody);
-                showErrorForm.Show();
-                showErrorForm.TopMost = true;
+                //showErrorForm.setErrorTextToRich("JArray.Parse 报错：\n" + url + "\n" + aJsonString + "\n原始数据：\n" + rawBody);
+                //showErrorForm.Show();
+                //showErrorForm.TopMost = true;
+                richTextBox1.AppendText(aJsonString);
+                string mailContent = "JArray.Parse 报错：\n" + url + "\n" + aJsonString + "\n原始数据：\n" + rawBody;
+                SendMail.Send("zefeng.zhuang@happyelements.com", "DCviewer报错了", mailContent, new string[] { });
+                return;
             }
            
             richTextBox1.Clear();
@@ -601,7 +605,6 @@ namespace DCviewer
         public void addExtramapToRichTextBox(string extraString)
         {
             JArray extraJson = new JArray();
-            
             while (extraString.Contains(@"\\"))
             {
                 extraString = extraString.Replace(@"\\", @"\");
@@ -622,30 +625,35 @@ namespace DCviewer
             //格式化数据,使可以解析出一层json或嵌套json
             extraJsonString = extraJsonString.Replace("{", "[{");
             extraJsonString = extraJsonString.Replace("}", "}]");
-            if (extraJsonString.Contains("ads_error"))
-            {
-                extraJsonString = extraJsonString.Replace("\"[{", "[{");
-                extraJsonString = extraJsonString.Replace("}]\"", "}]");
-            }
+            extraJsonString = extraJsonString.Replace("\"[{", "[{");
+            extraJsonString = extraJsonString.Replace("}]\"", "}]");
             extraJsonString = extraJsonString.Replace("\"[[", "[");
             extraJsonString = extraJsonString.Replace("]]\"", "]");
 
-            //针对实名认证extractmap里还嵌套特殊一层无法JArray.
+            //针对实名认证或闪验extractmap里还嵌套特殊一层无法解析成JArray.
             if (extraJsonString.Contains(@"loginAuth()"))
             {                
                 extraJsonString = extraJsonString.Replace("\":\"loginAuth()", ":loginAuth()\":");
             }
+            if (extraJsonString.Contains(@"requestPreLogin()"))
+            {
+                extraJsonString = extraJsonString.Replace("\":\"requestPreLogin()", ":requestPreLogin()\":");
+            }
+
+
             try
             {
                 extraJson = JArray.Parse(extraJsonString);
             }            
             catch
             {
-                showErrorForm.setErrorTextToRich("extraJson.Parse 报错：\n" + url + "\n" + extraJsonString + "\n原始数据：\n" + rawBody);
-                showErrorForm.Show();
-                showErrorForm.TopMost = true;
-                //richTextBox1.AppendText("\"extractmap\": 内容格式无法解析\n");
-                //return;
+                //showErrorForm.setErrorTextToRich("extraJson.Parse 报错：\n" + url + "\n" + extraJsonString + "\n原始数据：\n" + rawBody);
+                //showErrorForm.Show();
+                //showErrorForm.TopMost = true;
+                richTextBox1.AppendText(extraString);
+                string mailContent = "extraJson.Parse 报错：\n" + url + "\n" + extraJsonString + "\n原始数据：\n" + rawBody;
+                SendMail.Send("zefeng.zhuang@happyelements.com", "DCviewer报错了", mailContent, new string[] { });
+                return;
             }
             richTextBox1.AppendText("\"extractmap\": \"{\n");
 
